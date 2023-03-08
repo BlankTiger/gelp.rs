@@ -19,12 +19,14 @@ fn main() -> Result<(), Report> {
 
     if let Some(("go-back", sub_matches)) = matches.subcommand() {
         let num_of_commits = sub_matches.get_one::<String>("n").expect("required");
-        let command = process::Command::new("git")
+        info!("Going back {num_of_commits} commits");
+        process::Command::new("git")
             .arg("reset")
             .arg("HEAD~".to_owned() + num_of_commits)
-            .spawn();
-        info!("{:?}", &command);
+            .spawn()?;
     }
+
+    if let Some(("add-all", sub_matches)) = matches.subcommand() {}
 
     Ok(())
 }
