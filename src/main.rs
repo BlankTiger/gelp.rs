@@ -1,54 +1,69 @@
 use clap::{arg, Command};
 use color_eyre::Report;
-use gelper::setup::setup;
+use gelp::setup::setup;
 use std::process;
 use tracing::info;
-
-// enum Action {
-//     Reset,
-//     AddAll,
-//     Clean,
-//     CommitOver,
-//     Commit,
-// }
 
 fn main() -> Result<(), Report> {
     setup()?;
 
     let matches = cli().get_matches();
+    let mut base_command = process::Command::new("git");
 
     if let Some(("go-back", sub_matches)) = matches.subcommand() {
         let num_of_commits = sub_matches.get_one::<String>("n").expect("required");
         info!("Going back {num_of_commits} commits");
-        process::Command::new("git")
+        base_command
             .arg("reset")
-            .arg("HEAD~".to_owned() + num_of_commits)
-            .spawn()?;
+            .arg("HEAD~".to_owned() + num_of_commits);
     }
 
     if let Some(("clean", _)) = matches.subcommand() {
         info!("Running git clean -fdx");
-        process::Command::new("git")
-            .arg("clean")
-            .arg("-fdx")
-            .spawn()?;
+        base_command.arg("clean").arg("-fdx");
     }
 
+    if let Some(("overwrite-last", sub_matches)) = matches.subcommand() {
+        let change_msg = sub_matches
+            .get_one::<String>("change_msg")
+            .expect("required");
+
+        let should_change = matches!(change_msg.as_str(), "yes");
+        info!(
+            "Overwriting previous commit with current changes, new commit message: {should_change}"
+        );
+        base_command.arg("commit").arg("-a").arg("--amend");
+
+        if !should_change {
+            base_command.arg("--no-edit");
+        }
+    }
+
+    base_command.spawn()?.wait()?;
     Ok(())
 }
 
 fn cli() -> Command {
-    Command::new("gelper")
+    Command::new("gelp")
         .about("Helper for my commonly used git commands")
         .subcommand_required(true)
         .arg_required_else_help(true)
         .allow_external_subcommands(true)
         .subcommand(
             Command::new("go-back")
-                .about("Go back n number of commits")
+                .about("Go back n number of commits without removing files created in commits")
                 .arg(arg!(<n> "Number of commits")),
         )
         .subcommand(Command::new("clean").about(
             "Clean current directory out of all files that are not tracked and that are ignored",
         ))
+        .subcommand(
+            Command::new("overwrite-last")
+                .about("Overwrite last commit with current changes")
+                .arg(
+                    arg!(<change_msg> "Should commit message be changed")
+                        .default_value("no")
+                        .required(false),
+                ),
+        )
 }
