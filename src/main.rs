@@ -1,6 +1,6 @@
 use clap::Parser;
 use color_eyre::Report;
-use template_rs::setup::setup;
+use gelper::setup::setup;
 use tracing::info;
 
 #[derive(Parser, Debug)]

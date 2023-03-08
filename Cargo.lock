@@ -146,6 +146,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "gelper"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "color-eyre",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "gimli"
 version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -407,16 +417,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
-]
-
-[[package]]
-name = "synker"
-version = "0.1.0"
-dependencies = [
- "clap",
- "color-eyre",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]
