@@ -26,7 +26,13 @@ fn main() -> Result<(), Report> {
             .spawn()?;
     }
 
-    if let Some(("add-all", sub_matches)) = matches.subcommand() {}
+    if let Some(("clean", _)) = matches.subcommand() {
+        info!("Running git clean -fdx");
+        process::Command::new("git")
+            .arg("clean")
+            .arg("-fdx")
+            .spawn()?;
+    }
 
     Ok(())
 }
@@ -40,7 +46,9 @@ fn cli() -> Command {
         .subcommand(
             Command::new("go-back")
                 .about("Go back n number of commits")
-                .arg(arg!(<n> "Number of commits"))
-                .arg_required_else_help(true),
+                .arg(arg!(<n> "Number of commits")),
         )
+        .subcommand(Command::new("clean").about(
+            "Clean current directory out of all files that are not tracked and that are ignored",
+        ))
 }
