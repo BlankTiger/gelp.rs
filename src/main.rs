@@ -28,7 +28,12 @@ fn main() -> Result<(), Report> {
         base_command.arg("reset").arg("--hard");
     }
 
-    if let Some(("overwrite-last", sub_matches)) = matches.subcommand() {
+    if let Some(("ff", _)) = matches.subcommand() {
+        info!("Running git pull");
+        base_command.arg("pull");
+    }
+
+    if let Some(("over", sub_matches)) = matches.subcommand() {
         let change_msg = sub_matches
             .get_one::<String>("change_msg")
             .expect("required");
@@ -66,7 +71,11 @@ fn cli() -> Command {
             Command::new("reset").about("Reset current directory to the state of the last commit"),
         )
         .subcommand(
-            Command::new("overwrite-last")
+            Command::new("ff")
+                .about("Fast forward current branch to the latest commit on that branch"),
+        )
+        .subcommand(
+            Command::new("over")
                 .about("Overwrite last commit with current changes")
                 .arg(
                     arg!(<change_msg> "Should commit message be changed")
