@@ -23,6 +23,11 @@ fn main() -> Result<(), Report> {
         base_command.arg("clean").arg("-fdx");
     }
 
+    if let Some(("reset", _)) = matches.subcommand() {
+        info!("Running git reset --hard");
+        base_command.arg("reset").arg("--hard");
+    }
+
     if let Some(("overwrite-last", sub_matches)) = matches.subcommand() {
         let change_msg = sub_matches
             .get_one::<String>("change_msg")
@@ -57,6 +62,9 @@ fn cli() -> Command {
         .subcommand(Command::new("clean").about(
             "Clean current directory out of all files that are not tracked and that are ignored",
         ))
+        .subcommand(
+            Command::new("reset").about("Reset current directory to the state of the last commit"),
+        )
         .subcommand(
             Command::new("overwrite-last")
                 .about("Overwrite last commit with current changes")
